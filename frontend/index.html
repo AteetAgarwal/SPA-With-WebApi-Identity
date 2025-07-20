@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPA with Secure BFF</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Secure API (Azure AD via .NET Web API)</h1>
+
+  <div id="auth-buttons">
+    <button id="login-btn" onclick="login()">Login</button>
+    <button id="logout-btn" onclick="logout()" style="display: none;">Logout</button>
+    <button id="profile-btn" onclick="getProfile()" style="display: none;">Get Profile</button>
+  </div>
+
+  <pre id="output">Loading...</pre>
+
+  <script src="app.js"></script>
+  <script>
+    // Dynamically show/hide buttons based on authentication status
+    async function updateUI() {
+      const loginBtn = document.getElementById("login-btn");
+      const logoutBtn = document.getElementById("logout-btn");
+      const profileBtn = document.getElementById("profile-btn");
+
+      try {
+        const authStatus = await authManager.checkAuthStatus();
+        if (authStatus.isAuthenticated) {
+          loginBtn.style.display = "none";
+          logoutBtn.style.display = "inline-block";
+          profileBtn.style.display = "inline-block";
+        } else {
+          loginBtn.style.display = "inline-block";
+          logoutBtn.style.display = "none";
+          profileBtn.style.display = "none";
+        }
+      } catch (err) {
+        console.error("Failed to update UI", err);
+      }
+    }
+
+    window.onload = async () => {
+      await init();
+      await updateUI();
+    };
+  </script>
+</body>
+</html>
