@@ -11,23 +11,38 @@ namespace backend.Controllers
     {
         [HttpGet("login")]
         [AllowAnonymous]
-        public IActionResult Login()
+        public IActionResult Login([FromServices] IConfiguration configuration, [FromQuery] string redirectUri)
         {
+            redirectUri = redirectUri.Trim('/');
+            var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>();
+            // Validate the provided redirectUri
+            if (string.IsNullOrEmpty(redirectUri) || !allowedOrigins!.Contains(redirectUri))
+            {
+                return BadRequest("Invalid redirect URI");
+            }
+
             var properties = new AuthenticationProperties
             {
-                RedirectUri = "http://localhost:3000" // Redirect to SPA after login
+                RedirectUri = redirectUri // Use the validated redirect URI
             };
             return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         [HttpPost("logout")]
         [Authorize]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout([FromServices] IConfiguration configuration, [FromQuery] string redirectUri)
         {
+            redirectUri = redirectUri.Trim('/');
+            var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>();
+            // Validate the provided redirectUri
+            if (string.IsNullOrEmpty(redirectUri) || !allowedOrigins!.Contains(redirectUri))
+            {
+                return BadRequest("Invalid redirect URI");
+            }
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties
             {
-                RedirectUri = "http://localhost:3000" // Redirect to SPA after logout
+                RedirectUri = redirectUri // Redirect to SPA after logout
             });
             return Ok();
         }

@@ -30,9 +30,9 @@ namespace backend
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
                 builder.Configuration.Bind("AzureAd", options); // Bind Azure AD settings from appsettings.json
-                                                                // Ensure Authority is set
                 options.Authority = $"{builder.Configuration["AzureAd:Instance"]}{builder.Configuration["AzureAd:TenantId"]}";
                 options.ResponseType = "code"; // Use authorization code flow
+                options.UsePkce = true; // Enable PKCE
                 options.SaveTokens = false; // Do not save tokens in cookies
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.Scope.Add("openid");
@@ -85,15 +85,19 @@ namespace backend
 
             builder.Services.AddCors(options =>
             {
+                var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
                 options.AddPolicy("AllowFrontend",
                     builder =>
                     {
-                        builder.WithOrigins("http://localhost:3000", "https://localhost:3000")
+                        builder.WithOrigins(allowedOrigins!)
                                .AllowCredentials()
                                .AllowAnyHeader()
                                .AllowAnyMethod();
                     });
             });
+
+            builder.Logging.AddConsole();
+            builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
             var app = builder.Build();
 

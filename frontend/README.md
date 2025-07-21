@@ -46,7 +46,7 @@ This application uses the **OAuth 2.0 Authorization Code Flow with PKCE** for au
 
 1. cd frontend
 2. Serve the frontend using a static file server (e.g., serve):
-   npx serve
+   npx serve -l 3000
 3. Ensure the serve.json file is configured to allow cross-origin requests:
      {
       "headers": [

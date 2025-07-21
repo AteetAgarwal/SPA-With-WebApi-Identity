@@ -27,12 +27,14 @@ class AuthManager {
     }
 
     login() {
-        window.location.href = `${this.baseUrl}/login`;
+        const redirectUri = encodeURIComponent(window.location.href); // Current page URL
+        window.location.href = `${this.baseUrl}/login?redirectUri=${redirectUri}`;
     }
 
     async logout() {
+        const redirectUri = encodeURIComponent(window.location.href); // Current page URL
         try {
-            await fetch(`${this.baseUrl}/logout`, {
+            await fetch(`${this.baseUrl}/logout?redirectUri=${redirectUri}`, {
                 method: "POST",
                 credentials: "include"
             });
