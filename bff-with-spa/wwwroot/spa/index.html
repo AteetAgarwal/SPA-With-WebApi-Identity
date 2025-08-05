@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>SPA Auth</title>
+</head>
+<body>
+    <h1>SPA + BFF (same domain)</h1>
+    <button onclick="login()">Login</button>
+    <button onclick="logout()">Logout</button>
+    <button onclick="profile()">Get Profile</button>
+    <button onclick="check()">Check Auth</button>
+
+    <pre id="output"></pre>
+
+    <script>
+        const BASE_URL = '/api/auth';
+
+        function login()
+        {
+            window.location.href = `${BASE_URL}/login?redirectUri=${encodeURIComponent( window.location.origin + '/spa' )}`;
+        }
+
+        function logout()
+        {
+            fetch( `${BASE_URL}/logout?redirectUri=${encodeURIComponent( window.location.origin + '/spa' )}`, {
+                method: 'POST',
+                credentials: 'include'
+            } ).then( () => document.getElementById( 'output' ).textContent = 'Logged out' );
+        }
+
+        function profile()
+        {
+            fetch( `${BASE_URL}/profile`, { credentials: 'include' } )
+                .then( r => r.json() ).then( data =>
+                {
+                    document.getElementById( 'output' ).textContent = JSON.stringify( data, null, 2 );
+                } );
+        }
+
+        function check()
+        {
+            fetch( `${BASE_URL}/is-authenticated`, { credentials: 'include' } )
+                .then( r => r.json() ).then( data =>
+                {
+                    document.getElementById( 'output' ).textContent = JSON.stringify( data, null, 2 );
+                } );
+        }
+    </script>
+</body>
+</html>
